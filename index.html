@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR 招聘洞察报告 - Monica</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    background: white; border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    padding: 60px 40px; max-width: 600px; width: 100%;
+  }
+  h1 { font-size: 28px; margin-bottom: 12px; color: #333; text-align: center; }
+  .subtitle { color: #666; text-align: center; margin-bottom: 40px; font-size: 14px; }
+  .form-group { margin-bottom: 24px; }
+  label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+  input {
+    width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0;
+    border-radius: 6px; font-size: 16px;
+  }
+  input:focus { outline: none; border-color: #667eea; }
+  button {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; border: none; border-radius: 6px;
+    font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  button:disabled { opacity: 0.6; cursor: wait; }
+  .error { color: #e53e3e; font-size: 14px; margin-top: 8px; display: none; }
+  .error.show { display: block; }
+  .report-list { margin-bottom: 20px; }
+  .report-item {
+    background: #f7fafc; padding: 20px; border-radius: 8px;
+    border-left: 4px solid #667eea;
+  }
+  .report-item h3 { font-size: 18px; margin-bottom: 8px; color: #333; }
+  .report-item p { color: #666; font-size: 14px; margin-bottom: 4px; }
+  .view-btn { margin-top: 16px; }
+  #viewer { display: none; position: fixed; inset: 0; width: 100%; height: 100%; border: none; background: white; }
+  #exitBar {
+    display: none; position: fixed; top: 10px; right: 10px; z-index: 9999;
+  }
+  #exitBar button {
+    width: auto; padding: 8px 16px; font-size: 13px;
+    background: rgba(0,0,0,0.6); color: #fff; border-radius: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="container" id="loginCard">
+    <h1>🔐 HR 招聘洞察报告</h1>
+    <p class="subtitle">Monica 招聘团 | 数据窗口 2026-08-01 ~ 08-06</p>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="password">请输入访问密码：</label>
+        <input type="password" id="password" placeholder="输入密码" autocomplete="off">
+        <div class="error" id="error"></div>
+      </div>
+      <button type="submit" id="submitBtn">进入</button>
+    </form>
+  </div>
+
+  <div class="container" id="listCard" style="display:none;">
+    <h1>📊 HR 招聘洞察报告</h1>
+    <p class="subtitle">Monica 招聘团 | 数据窗口 2026-08-01 ~ 08-06</p>
+    <div class="report-list">
+      <div class="report-item">
+        <h3>融合报告 - 四家公司横向对比</h3>
+        <p>从招聘视角，看国内头部大模型公司</p>
+        <p style="color:#999;font-size:12px;">HR 数据 × JD 七维度分析 · 部门分享</p>
+        <button class="view-btn" onclick="openReport()">查看报告 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="exitBar"><button onclick="location.reload()">退出</button></div>
+  <iframe id="viewer"></iframe>
+
+<script>
+let decryptedHtml = null;
+
+function showErr(msg) {
+  const el = document.getElementById('error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function decrypt(password) {
+  const res = await fetch('fusion.enc');
+  if (!res.ok) throw new Error('load failed');
+  const b64 = (await res.text()).trim();
+  const raw = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const salt = raw.slice(0, 16);
+  const iv = raw.slice(16, 28);
+  const tag = raw.slice(28, 44);
+  const data = raw.slice(44);
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
+    keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+
+  // WebCrypto AES-GCM 要求密文后拼接 auth tag
+  const combined = new Uint8Array(data.length + tag.length);
+  combined.set(data);
+  combined.set(tag, data.length);
+
+  const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, combined);
+  return new TextDecoder().decode(plain);
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const pwd = document.getElementById('password').value;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '验证中...';
+  try {
+    decryptedHtml = await decrypt(pwd);
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('listCard').style.display = 'block';
+  } catch (err) {
+    showErr('密码错误，请重试');
+    document.getElementById('password').value = '';
+  }
+  btn.disabled = false;
+  btn.textContent = '进入';
+}
+
+function openReport() {
+  document.body.style.background = 'white';
+  document.getElementById('listCard').style.display = 'none';
+  const viewer = document.getElementById('viewer');
+  viewer.style.display = 'block';
+  viewer.srcdoc = decryptedHtml;
+  document.getElementById('exitBar').style.display = 'block';
+}
+</script>
+</body>
+</html>
