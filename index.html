@@ -113,23 +113,23 @@
         <p class="meta">五线画像 138/62/65/5/12 · 2026-08</p>
         <span class="go">查看报告 →</span>
       </div>
-      <div class="report-item co soon">
+      <div class="report-item co active" onclick="openReport('zhipu')">
         <h3>智谱华章</h3>
-        <p>Agent 双占比第一，押注商业化深水区</p>
-        <p class="meta">五线画像 37/55/43/20/27 · 2026-08</p>
-        <span class="go">即将上线</span>
+        <p>上市七个月，市值 2000 亿，在招岗位开满 200 个</p>
+        <p class="meta">200 在招岗 · Boss 全量 · 46 人 HR · 60% 应届</p>
+        <span class="go">查看报告 →</span>
       </div>
-      <div class="report-item co soon">
+      <div class="report-item co active" onclick="openReport('deepseek')">
         <h3>DeepSeek</h3>
-        <p>极客密度拉满，薪酬全行业 TOP</p>
-        <p class="meta">2026-08</p>
-        <span class="go">即将上线</span>
+        <p>首轮融资 510 亿元到账，HR 团队先把自己翻倍</p>
+        <p class="meta">约 250–280 在招岗 · 三渠道 · 32 人 HR 两个月翻倍</p>
+        <span class="go">查看报告 →</span>
       </div>
-      <div class="report-item co soon">
+      <div class="report-item co active" onclick="openReport('moonshot')">
         <h3>月之暗面（Kimi）</h3>
         <p>冲刺港交所 IPO，Boss 在架岗位却是 0 个</p>
-        <p class="meta">五线画像 26/12/21/18/14 · 2026-08</p>
-        <span class="go">即将上线</span>
+        <p class="meta">91 在招岗 · 单渠道垄断 · 30–35 人 HR</p>
+        <span class="go">查看报告 →</span>
       </div>
     </div>
   </div>
@@ -142,6 +142,9 @@ const REPORTS = {
   fusion:  { enc: 'fusion.enc' },
   minimax: { enc: 'minimax.enc' },
   minimax_en: { enc: 'minimax_en.enc' },
+  deepseek: { enc: 'deepseek.enc' },
+  zhipu:   { enc: 'zhipu.enc' },
+  moonshot: { enc: 'moonshot.enc' },
 };
 let password = null;
 const decryptedCache = {};
