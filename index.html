@@ -53,7 +53,17 @@
     margin-bottom: 8px; color: #211E32;
   }
   .login-card .subtitle {
-    font-size: 13px; color: var(--muted); margin-bottom: 32px;
+    font-size: 13px; color: var(--muted); margin-bottom: 14px;
+  }
+  .company-chips {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+    margin-bottom: 32px;
+  }
+  .company-chips span {
+    background: #F7F3FF; color: var(--purple);
+    border: 1px solid #E9E4F6;
+    border-radius: 999px; padding: 3px 13px;
+    font-size: 12px; font-weight: 600;
   }
   .login-card label {
     display: block; text-align: left; font-size: 13px; font-weight: 600;
@@ -208,7 +218,10 @@
   <div class="login-card">
     <div class="login-pill">AI NATIVE 人才情报 · 报告集</div>
     <h1>国内四家大模型公司<br>人才与组织情报报告</h1>
-    <p class="subtitle">基于 Boss直聘、脉脉、LinkedIn、企业公开招聘信息与公开报道，多渠道交叉验证</p>
+    <p class="subtitle">从招聘视角，解码四家头部大模型公司的组织与人才棋局</p>
+    <div class="company-chips">
+      <span>MiniMax</span><span>DeepSeek</span><span>月之暗面</span><span>智谱华章</span>
+    </div>
     <form onsubmit="handleLogin(event)">
       <label for="password">请输入访问密码</label>
       <input type="password" id="password" placeholder="输入密码" autocomplete="off">
