@@ -74,7 +74,7 @@ h1{font-family:var(--serif);font-weight:900;line-height:1.12}
 .stat-sub{margin-top:3px;font-size:11.5px;color:var(--muted);line-height:1.5}
 
 /* ── Left Sidebar Nav ── */
-#sidenav{position:fixed;top:0;left:0;bottom:0;width:220px;z-index:900;
+#sidenav{position:fixed;top:0;left:0;bottom:0;width:250px;z-index:900;
   background:linear-gradient(180deg,rgba(10,20,43,.98) 0%,rgba(16,29,58,.98) 100%);
   border-right:1px solid rgba(201,162,39,.25);
   display:flex;flex-direction:column;padding:28px 0 20px;overflow-y:auto;
@@ -83,22 +83,22 @@ h1{font-family:var(--serif);font-weight:900;line-height:1.12}
 #sidenav::-webkit-scrollbar-thumb{background:rgba(201,162,39,.3);border-radius:2px}
 .side-brand{display:flex;align-items:center;gap:10px;padding:0 20px 24px;
   border-bottom:1px solid rgba(201,162,39,.15);margin-bottom:18px;text-decoration:none}
-.side-brand .brand-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(150deg,var(--gold-bright),var(--gold));
-  color:var(--navy-deep);font-family:var(--serif);font-weight:900;font-size:19px;display:grid;place-items:center;flex-shrink:0}
-.side-brand .brand-text{color:#e8ecf6;font-size:13px;font-weight:600;letter-spacing:.04em;line-height:1.3}
-.side-brand .brand-text em{font-style:normal;color:var(--gold-bright);display:block;font-size:11.5px;margin-top:2px;letter-spacing:.08em}
+.side-brand .brand-mark{width:40px;height:40px;border-radius:8px;background:linear-gradient(150deg,var(--gold-bright),var(--gold));
+  color:var(--navy-deep);font-family:var(--serif);font-weight:900;font-size:21px;display:grid;place-items:center;flex-shrink:0}
+.side-brand .brand-text{color:#f0f3fa;font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.3}
+.side-brand .brand-text em{font-style:normal;color:var(--gold-bright);display:block;font-size:13px;margin-top:4px;letter-spacing:.08em}
 .side-links{display:flex;flex-direction:column;gap:2px;padding:0 10px}
-.nav-link{color:#8b97b4;text-decoration:none;font-size:13.5px;font-weight:500;
-  padding:10px 14px;letter-spacing:.03em;transition:all .2s;border-radius:6px;
+.nav-link{color:#cdd6ea;text-decoration:none;font-size:16px;font-weight:600;
+  padding:14px 18px;letter-spacing:.05em;transition:all .2s;border-radius:6px;
   border-left:3px solid transparent;margin-left:4px}
-.nav-link:hover{color:#e0e6f4;background:rgba(201,162,39,.08)}
-.nav-link.active{color:var(--gold-bright);background:rgba(201,162,39,.12);border-left-color:var(--gold-bright);font-weight:600}
+.nav-link:hover{color:#fff;background:rgba(201,162,39,.12)}
+.nav-link.active{color:var(--gold-bright);background:rgba(201,162,39,.16);border-left-color:var(--gold-bright);font-weight:700}
 .side-footer{margin-top:auto;padding:18px 20px 0;border-top:1px solid rgba(201,162,39,.12);
-  font-size:10.5px;color:#5a6580;line-height:1.6;letter-spacing:.02em}
+  font-size:11.5px;color:#6d7a99;line-height:1.6;letter-spacing:.02em}
 
 /* Main content offset for sidebar */
-body{padding-left:220px}
-#progress{position:fixed;top:0;left:220px;right:0;height:3px;width:auto;z-index:1000;
+body{padding-left:250px}
+#progress{position:fixed;top:0;left:250px;right:0;height:3px;width:auto;z-index:1000;
   background:linear-gradient(90deg,var(--gold),var(--gold-bright));
   box-shadow:0 0 8px rgba(224,184,63,.55);transition:width .12s linear}
 .hero::before{content:"";position:absolute;inset:0;pointer-events:none;
@@ -161,12 +161,14 @@ footer .fine{margin-top:10px;color:#6d7a99;font-size:11.5px}
 
 @media (max-width:1020px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:860px){
-  #sidenav{width:180px;padding:20px 0 16px}
-  body{padding-left:180px}
-  #progress{left:180px}
+  #sidenav{width:200px;padding:20px 0 16px}
+  body{padding-left:200px}
+  #progress{left:200px}
   .side-brand{padding:0 16px 18px;margin-bottom:14px}
-  .side-brand .brand-text{font-size:12px}
-  .nav-link{font-size:12.5px;padding:8px 12px}
+  .side-brand .brand-mark{width:34px;height:34px;font-size:18px}
+  .side-brand .brand-text{font-size:14px}
+  .side-brand .brand-text em{font-size:11.5px}
+  .nav-link{font-size:15px;padding:12px 14px}
   .hero-inner{padding:56px 22px 88px}
   .hero-watermark{font-size:150px;right:-40px}
   .sec{padding:50px 0 18px}
