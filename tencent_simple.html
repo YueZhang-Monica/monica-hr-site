@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>腾讯 AI/大模型组织架构 · 精简版</title>
+<style>
+:root {
+  --navy: #101d3a;
+  --gold: #c9a227;
+  --gold-bright: #e0b83f;
+  --ink: #1d2537;
+  --muted: #5b6478;
+  --paper: #f5f3ec;
+  --card: #ffffff;
+  --line: #e5e1d4;
+  --serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+  --sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--sans);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.75;
+  background: var(--paper);
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(160deg, #152548 0%, #101d3a 45%, #0a142b 100%);
+  color: #eef1f8;
+  padding: 60px 28px 80px;
+  border-bottom: 3px solid var(--gold);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+}
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gold-bright);
+  text-transform: uppercase;
+  font-weight: 600;
+  border: 1px solid rgba(224,184,63,.4);
+  padding: 5px 12px;
+  border-radius: 2px;
+  background: rgba(10,20,43,.45);
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 900;
+  margin-top: 20px;
+  letter-spacing: 0.02em;
+}
+.hero h1 span {
+  display: block;
+  font-size: clamp(18px, 3vw, 26px);
+  color: var(--gold-bright);
+  margin-top: 8px;
+  font-weight: 700;
+}
+.hero-desc {
+  margin-top: 20px;
+  max-width: 700px;
+  color: #b9c4dc;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.hero-desc b { color: #fff; font-weight: 600; }
+
+/* Main content */
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 28px 60px;
+}
+
+/* Section */
+.section {
+  margin-top: 50px;
+}
+.section-kicker {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.section h2 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--navy);
+  margin-top: 8px;
+}
+.section-rule {
+  margin-top: 12px;
+  height: 1px;
+  width: 180px;
+  background: linear-gradient(90deg, var(--gold), rgba(201,162,39,0));
+}
+
+/* Org Chart */
+.org-chart {
+  margin-top: 24px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 28px;
+  overflow-x: auto;
+}
+.org-chart pre {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--navy);
+  white-space: pre;
+  margin: 0;
+}
+.org-chart .highlight {
+  color: var(--gold);
+  font-weight: 700;
+}
+.org-chart .note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Timeline */
+.timeline {
+  margin-top: 24px;
+  position: relative;
+  padding-left: 28px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--gold), rgba(201,162,39,0.3));
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 28px;
+}
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--paper);
+}
+.timeline-item.current::before {
+  background: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46,125,50,0.2);
+}
+.timeline-year {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--navy);
+}
+.timeline-event {
+  font-size: 14px;
+  color: var(--ink);
+  margin-top: 4px;
+}
+.timeline-impact {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Key Insights */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+.insight-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: 8px;
+  padding: 20px 22px;
+}
+.insight-card h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+.insight-card p {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* Stats */
+.stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+.stat-box {
+  flex: 1;
+  min-width: 140px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px 20px;
+  text-align: center;
+}
+.stat-num {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Footer */
+footer {
+  margin-top: 60px;
+  background: var(--navy);
+  color: #8b93a7;
+  padding: 30px 28px;
+  font-size: 12px;
+  text-align: center;
+  border-top: 3px solid var(--gold);
+}
+footer .brand {
+  font-family: var(--serif);
+  color: #e8ecf6;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+footer .brand em {
+  font-style: normal;
+  color: var(--gold-bright);
+}
+
+@media (max-width: 640px) {
+  .hero { padding: 40px 20px 60px; }
+  main { padding: 0 20px 40px; }
+  .org-chart { padding: 16px; }
+  .org-chart pre { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker">Talent Intelligence · 组织架构洞察</div>
+    <h1>腾讯<span>AI / 大模型组织架构演变</span></h1>
+    <p class="hero-desc">
+      腾讯混元团队在三年内经历<b>四次重大架构变革</b>：从虚拟组织 → AI Lab 主导 → TEG 实体部门 → 姚顺雨时代。
+      2026年完成最彻底的重组：<b>AI Lab 正式撤销</b>，形成<b>基础模型部</b>统一管理语言+多模态的新格局。
+    </p>
+  </div>
+</header>
+
+<main>
+
+  <!-- 当前架构 -->
+  <section class="section">
+    <div class="section-kicker">01 · Current Structure</div>
+    <h2>当前组织架构</h2>
+    <div class="section-rule"></div>
+
+    <div class="org-chart">
+      <pre><span class="highlight">腾讯总裁</span>
+│
+├── <span class="highlight">首席AI科学家</span> ──(实线汇报总裁)
+│   │  95后 / 前OpenAI研究员
+│   │
+│   ├── <span class="highlight">基础模型部</span> ──(2026.7由大语言模型部+多模态模型部合并)
+│   │   │  官方口径：提升协同效率，探索全模态智能上限
+│   │   │
+│   │   ├── 语言模型线（原大语言模型部）
+│   │   │   ├── 预训练组 / 后训练组 / 模型评估组
+│   │   │   └── Frontier(前沿探索)组
+│   │   │
+│   │   └── 多模态线（原多模态模型部）
+│   │       ├── 文生图 / 文生视频 / 文生3D
+│   │       ├── 数字人 / 语音
+│   │       └── VLM方向
+│   │
+│   ├── <span class="highlight">AI Infra部</span> ──(兼管)
+│   │   ├── 分布式训练
+│   │   ├── 高性能推理服务
+│   │   └── Baseline Infra
+│   │
+│   └── [TEG总裁 ──(Infra+基础模型部虚线汇报)]
+│
+├── <span class="highlight">AI Data部</span> ──(向副总裁汇报)
+│   └── 大模型数据体系 + 评测标准
+│
+├── <span class="highlight">数据计算平台部</span> ──(向副总裁汇报)
+│   └── 大数据+机器学习融合平台
+│
+├── <span class="highlight">CSIG</span>（云与智慧产业事业群）
+│   ├── 大数据+AI团队（700人）
+│   │   └── 战略：从follow阿里云 → 对标Databricks
+│   ├── AI to B整合（WorkBuddy/CodeBuddy）
+│   └── 元宝（数据飞轮：数据科学/数仓/增长运营）
+│
+├── <span class="highlight">IEG</span>（互动娱乐事业群）
+│   ├── AI研究探索中心（15人，全95后斯坦福博士）
+│   │   └── 方向：AI在游戏领域应用
+│   └── 各工作室自建海外发行能力
+│
+└── <span class="note">[已撤销] AI Lab ── 2026.3正式撤销</span></pre>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">6</div>
+        <div class="stat-label">事业群(BG)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">700+</div>
+        <div class="stat-label">CSIG大数据+AI团队</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">15</div>
+        <div class="stat-label">IEG AI研究中心(全95后)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">4次</div>
+        <div class="stat-label">三年架构变革</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 演变时间线 -->
+  <section class="section">
+    <div class="section-kicker">02 · Evolution Timeline</div>
+    <h2>架构演变时间线</h2>
+    <div class="section-rule"></div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-year">2017</div>
+        <div class="timeline-event">AI Lab 创建</div>
+        <div class="timeline-impact">腾讯AI基础研究起点</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2022末 - 2023中</div>
+        <div class="timeline-event">混元立项，虚拟项目组跨部门抽调</div>
+        <div class="timeline-impact">算力不足几千张卡，开始大模型探索</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2024.7</div>
+        <div class="timeline-event">AI Lab 重组为AGI中心</div>
+        <div class="timeline-impact">学术派 → 工程派转型</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2024中 - 2025秋</div>
+        <div class="timeline-event">TEG实体化，R1-R4合伙人制</div>
+        <div class="timeline-impact">人才大量流失期</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2025.12</div>
+        <div class="timeline-event">新任首席AI科学家入职</div>
+        <div class="timeline-impact">"AI原生人才主导"新纪元开启</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2026.3.20</div>
+        <div class="timeline-event">AI Lab 正式撤销</div>
+        <div class="timeline-impact">人员分流至LLM部+产学研中心，学术派全面出局</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-year">2026Q1</div>
+        <div class="timeline-event">新设AI Infra部 / AI Data部 / 数据计算平台部</div>
+        <div class="timeline-impact">双轨制(语言+多模态)定型</div>
+      </div>
+
+      <div class="timeline-item current">
+        <div class="timeline-year">2026.7.23</div>
+        <div class="timeline-event">大语言模型部 + 多模态模型部 → <b>基础模型部</b></div>
+        <div class="timeline-impact">"模态分拆双轨制"终结，统一管理，向全模态方向演进</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关键洞察 -->
+  <section class="section">
+    <div class="section-kicker">03 · Key Insights</div>
+    <h2>关键洞察</h2>
+    <div class="section-rule"></div>
+
+    <div class="insights-grid">
+      <div class="insight-card">
+        <h4>🔄 从"模态分拆"到"全模态统一"</h4>
+        <p>腾讯曾是唯一按"模态"拆分大模型研发的大厂（语言+多模态平行），2026.7合并后转向"全模态统一"，与字节模式趋同。</p>
+      </div>
+
+      <div class="insight-card">
+        <h4>🎯 CSIG战略转向</h4>
+        <p>从follow阿里云 → 对标Databricks弯道超车(2025)，产品矩阵覆盖EMR/ES/流式计算/TCHouse等，AI to B整合加速。</p>
+      </div>
+
+      <div class="insight-card">
+        <h4>🎮 IEG自建AI能力</h4>
+        <p>IEG AI研究探索中心(15人全95后斯坦福博士)独立于混元，说明游戏AI应用落地走业务侧自建路线。</p>
+      </div>
+
+      <div class="insight-card">
+        <h4>💡 人才流失与挖角窗口</h4>
+        <p>语音+多模态方向人才流失最严重，AI Lab撤销后HR人才也开始外溢。腾讯正以双倍薪资从字节/OpenAI激进挖人。</p>
+      </div>
+
+      <div class="insight-card">
+        <h4>📊 招聘策略特征</h4>
+        <p>"职级薪酬上不封顶"：对顶尖AI人才给予极高弹性；技术类岗位占比超60%；四地分布(深圳/北京/上海/西雅图)。</p>
+      </div>
+
+      <div class="insight-card">
+        <h4>🌐 国际化程度</h4>
+        <p>总员工11万，海外仅2-3千；除游戏外国际化程度低于阿里；多数海外团队汇报回总部。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 已离职核心人物 -->
+  <section class="section">
+    <div class="section-kicker">04 · Key Departures</div>
+    <h2>已离职核心人物</h2>
+    <div class="section-rule"></div>
+
+    <div class="org-chart">
+      <pre><span class="note">以下为核心人物变动，反映腾讯AI战略调整方向：</span>
+
+<span class="highlight">AI Lab 原主任</span> ── 回归Robotics X实验室
+    <span class="note">计算机视觉背景，大模型方向非核心</span>
+
+<span class="highlight">AI Lab 原副主任</span> ── 已离职
+    <span class="note">语音项目受阻，组织变革</span>
+
+<span class="highlight">混元技术负责人</span> ── 创业(视频生成)
+    <span class="note">晋升后急流勇退</span>
+
+<span class="highlight">推理架构核心</span> ── 离职创业
+    <span class="note">独立写完VLLM推理架构</span>
+
+<span class="highlight">语音方向负责人</span> ── 入职京东研究院(仅3个月即走)
+    <span class="note">语音项目受阻、人事变动</span></pre>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="brand">腾讯 · <em>AI/大模型组织架构洞察</em></div>
+  <div>数据来源：Talent Intelligence 系统多源交叉验证 · 精简版</div>
+  <div style="margin-top: 8px; color: #6d7a99;">最后更新 2026-08 · 本报告仅供人才情报研究参考</div>
+</footer>
+
+</body>
+</html>
