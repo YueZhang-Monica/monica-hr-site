@@ -735,8 +735,18 @@ async function openReport(key) {
   viewer.srcdoc = decryptedCache[key];
   document.getElementById('exitBar').style.display = 'block';
   document.getElementById('chatToggle').style.display = 'block';
-  // 预提取报告文本
-  reportText = extractReportText(decryptedCache[key]);
+  // 预提取报告文本（知识库）
+  // 腾讯报告：页面显示精简版，但问答知识库用完整版
+  const kbEnc = KB_MAP[key];
+  if (kbEnc) {
+    const kbKey = '__kb_' + key;
+    if (!decryptedCache[kbKey]) {
+      decryptedCache[kbKey] = await decrypt(kbEnc, password);
+    }
+    reportText = extractReportText(decryptedCache[kbKey]);
+  } else {
+    reportText = extractReportText(decryptedCache[key]);
+  }
   // 重置聊天
   chatHistory = [];
   const msgs = document.getElementById('chatMessages');
@@ -764,6 +774,11 @@ function exitReport() {
 let reportText = '';
 let chatHistory = [];
 let isStreaming = false;
+
+// 知识库映射：某些报告的问答知识库用完整版（页面仍显示精简版）
+const KB_MAP = {
+  tencent: 'tencent_full.enc',
+};
 
 // 内置 API Key（通义千问 qwen-plus）
 const QWEN_API_KEY = 'sk-ws-H.EPYIHER.DEEZ.MEYCIQDetJv0qunLkejVGxq2jVesuGhYtGAqwQsXazgQ_sOtNwIhAPwNu3cXJEBBieaW6IF41c7jKhlR1gOLWldYlOqXU0my';
@@ -844,8 +859,8 @@ async function sendChat() {
 
   try {
     // 构建 RAG prompt
-    const truncatedText = reportText.length > 12000
-      ? reportText.substring(0, 12000) + '\n\n...（内容已截断）'
+    const truncatedText = reportText.length > 24000
+      ? reportText.substring(0, 24000) + '\n\n...（内容已截断）'
       : reportText;
 
     const messages = [
