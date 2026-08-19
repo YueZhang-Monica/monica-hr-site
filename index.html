@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>国内四家大模型公司人才情报报告集</title>
+<title>招聘团 · 人才情报中心</title>
 <style>
   :root {
     --bg: #FAF9FE;
@@ -15,15 +15,19 @@
     --card-border: #E9E4F6;
     --chip-bg: #EEF1F6;
     --chip-text: #41506B;
+    --gold: #c9a227;
+    --gold-soft: #f0e2b6;
+    --navy: #101d3a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* ─── 密码门 ─── */
   body {
     margin: 0; background: var(--bg); color: var(--text);
     font-family: -apple-system, system-ui, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     line-height: 1.7; font-size: 14.5px;
   }
+
+  /* ─── 密码门 ─── */
   .login-page {
     min-height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -53,17 +57,7 @@
     margin-bottom: 8px; color: #211E32;
   }
   .login-card .subtitle {
-    font-size: 13px; color: var(--muted); margin-bottom: 14px;
-  }
-  .company-chips {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
-    margin-bottom: 32px;
-  }
-  .company-chips span {
-    background: #F7F3FF; color: var(--purple);
-    border: 1px solid #E9E4F6;
-    border-radius: 999px; padding: 3px 13px;
-    font-size: 12px; font-weight: 600;
+    font-size: 13px; color: var(--muted); margin-bottom: 28px;
   }
   .login-card label {
     display: block; text-align: left; font-size: 13px; font-weight: 600;
@@ -87,13 +81,83 @@
   }
   .login-err.show { display: block; }
 
-  /* ─── 列表页（Metix 风格） ─── */
+  /* ─── 分类选择页 ─── */
+  .category-page {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(120deg, #242039 0%, #2D2856 58%, #3E2B7D 132%);
+    padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .category-page::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse 55% 45% at 72% 18%, rgba(94,62,216,0.25), transparent 70%);
+  }
+  .category-inner {
+    position: relative; z-index: 1; max-width: 800px; width: 100%; text-align: center;
+  }
+  .category-inner .pill {
+    display: inline-block; border: 1px solid rgba(196,181,253,0.35); color: var(--teal);
+    border-radius: 999px; padding: 3px 14px; font-size: 12px; letter-spacing: 1.5px; font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .category-inner h1 {
+    color: #fff; font-size: 32px; font-weight: 850; margin-bottom: 8px;
+  }
+  .category-inner .desc {
+    color: #8F8BA8; font-size: 14px; margin-bottom: 40px;
+  }
+  .category-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+  }
+  .cat-card {
+    background: #fff; border-radius: 18px; padding: 36px 28px;
+    border: 2px solid transparent;
+    cursor: pointer; transition: all 0.2s ease;
+    text-align: left;
+  }
+  .cat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 48px rgba(94,62,216,0.2);
+  }
+  .cat-card.ai:hover { border-color: var(--purple); }
+  .cat-card.ti:hover { border-color: var(--gold); }
+  .cat-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin-bottom: 20px;
+  }
+  .cat-card.ai .cat-icon { background: var(--purple-soft); }
+  .cat-card.ti .cat-icon { background: #fdf8e8; }
+  .cat-card h2 {
+    font-size: 20px; font-weight: 800; margin-bottom: 8px;
+  }
+  .cat-card .cat-desc {
+    font-size: 13.5px; color: var(--muted); margin-bottom: 16px; line-height: 1.6;
+  }
+  .cat-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .cat-tag {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .cat-card.ai .cat-tag { background: var(--purple-soft); color: var(--purple); }
+  .cat-card.ti .cat-tag { background: #fdf8e8; color: #8a6d10; }
+  .cat-go {
+    display: block; margin-top: 20px; font-size: 13px; font-weight: 700;
+  }
+  .cat-card.ai .cat-go { color: var(--purple); }
+  .cat-card.ti .cat-go { color: #8a6d10; }
+
+  /* ─── 列表页 ─── */
   .nav {
     position: sticky; top: 0; z-index: 50;
     background: rgba(255,255,255,0.92); backdrop-filter: blur(12px);
     border-bottom: 1px solid #EFEBF9;
     padding: 12px 32px; display: flex; justify-content: space-between; align-items: center;
   }
+  .nav-left { display: flex; align-items: center; gap: 12px; }
   .logo { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px; }
   .logo .dot {
     width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0;
@@ -101,6 +165,14 @@
     color: #fff; font-size: 12px; font-weight: 800;
     display: flex; align-items: center; justify-content: center;
   }
+  .back-btn {
+    font-size: 12px; color: var(--muted); cursor: pointer;
+    padding: 4px 12px; border: 1px solid var(--card-border); border-radius: 999px;
+    transition: all 0.15s;
+  }
+  .back-btn:hover { color: var(--purple); border-color: var(--purple); }
+  .nav-right { color: var(--muted); font-size: 12.5px; }
+
   .hero {
     position: relative; color: #fff; padding: 68px 32px 56px; overflow: hidden;
     background: linear-gradient(120deg, #242039 0%, #2D2856 58%, #3E2B7D 132%);
@@ -118,8 +190,9 @@
     font-size: 40px; font-weight: 850; line-height: 1.3; letter-spacing: -0.5px;
     margin: 20px 0 12px;
   }
-  .hero h1 .teal { color: var(--teal); text-shadow: 0 0 32px rgba(196,181,253,0.45); }
-  .framework {
+  .hero h1 .accent { color: var(--teal); text-shadow: 0 0 32px rgba(196,181,253,0.45); }
+  .hero .data-note { color: #8F8BA8; font-size: 12px; margin-top: 12px; }
+  .hero .framework {
     display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
     margin: 28px 0 16px;
   }
@@ -134,7 +207,20 @@
   .fw-arrow { color: rgba(196,181,253,0.55); font-size: 13px; font-weight: 700; }
   .hero .logic-line { color: #EDEBFA; font-size: 15px; font-weight: 600; max-width: 760px; }
   .hero .logic-line em { color: var(--teal); font-style: normal; }
-  .hero .data-note { color: #8F8BA8; font-size: 12px; margin-top: 12px; }
+
+  /* TI hero variant */
+  .hero.ti-hero {
+    background: linear-gradient(120deg, #1a1a2e 0%, #16213e 58%, #0f3460 132%);
+  }
+  .hero.ti-hero::before {
+    background: radial-gradient(ellipse 55% 45% at 72% 18%, rgba(201,162,39,0.2), transparent 70%);
+  }
+  .hero.ti-hero .pill { border-color: rgba(201,162,39,0.4); color: var(--gold-soft); }
+  .hero.ti-hero h1 .accent { color: var(--gold); text-shadow: 0 0 32px rgba(201,162,39,0.4); }
+  .hero.ti-hero .fw-step { border-color: rgba(201,162,39,0.2); }
+  .hero.ti-hero .fw-step .fw-num { color: var(--gold); }
+  .hero.ti-hero .logic-line em { color: var(--gold); }
+
   main { max-width: 960px; margin: 0 auto; padding: 20px 32px 80px; }
   .sec-tag {
     margin-top: 40px; font-size: 11.5px; font-weight: 700; letter-spacing: 2.5px;
@@ -159,6 +245,7 @@
   .co-card .co-name { font-size: 21px; font-weight: 850; display: flex; align-items: center; gap: 10px; }
   .co-card .co-status { font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
   .co-card .co-status.new { background: #EDE7FF; color: #5B21B6; }
+  .co-card .co-status.ti { background: #fdf8e8; color: #8a6d10; }
   .co-card .co-one { font-size: 13.5px; color: #4A4765; margin: 8px 0 14px; min-height: 44px; }
   .co-card .go { color: var(--purple); font-weight: 700; font-size: 13.5px; margin-top: auto; }
   .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
@@ -167,8 +254,8 @@
     border-radius: 999px; padding: 3px 12px; font-size: 11.5px; font-weight: 500;
   }
   .tag.hot { background: var(--purple-soft); color: var(--purple); font-weight: 600; }
+  .tag.ti-tag { background: #fdf8e8; color: #8a6d10; }
 
-  /* 横向对比卡片 */
   .fusion-card {
     display: block; text-decoration: none; color: inherit;
     background: #fff; border: 1px solid #C9BDF3; border-radius: 18px;
@@ -204,24 +291,23 @@
 
   @media (max-width: 760px) {
     .grid { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 30px; }
+    .category-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 28px; }
     .login-card { padding: 36px 24px; }
     .hero { padding: 48px 24px 40px; }
     main { padding: 16px 24px 60px; }
+    .category-inner h1 { font-size: 24px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ═══════ 密码门 ═══════ -->
+<!-- ═══════ 1. 密码门 ═══════ -->
 <div class="login-page" id="loginCard">
   <div class="login-card">
-    <div class="login-pill">AI NATIVE 人才情报 · 报告集</div>
-    <h1>国内四家大模型公司<br>人才与组织情报报告</h1>
-    <p class="subtitle">从招聘视角，解码四家头部大模型公司的组织与人才棋局</p>
-    <div class="company-chips">
-      <span>MiniMax</span><span>DeepSeek</span><span>月之暗面</span><span>智谱华章</span>
-    </div>
+    <div class="login-pill">招聘团 · 人才情报中心</div>
+    <h1>人才与组织洞察报告集</h1>
+    <p class="subtitle">招聘团队Monica | 数据窗口 2026-08</p>
     <form onsubmit="handleLogin(event)">
       <label for="password">请输入访问密码</label>
       <input type="password" id="password" placeholder="输入密码" autocomplete="off">
@@ -231,18 +317,55 @@
   </div>
 </div>
 
-<!-- ═══════ 列表页 ═══════ -->
-<div id="listPage" style="display:none;">
+<!-- ═══════ 2. 分类选择页 ═══════ -->
+<div class="category-page" id="categoryPage" style="display:none;">
+  <div class="category-inner">
+    <div class="pill">选择报告类型</div>
+    <h1>人才情报报告中心</h1>
+    <p class="desc">两类报告，不同数据来源与方法论</p>
+
+    <div class="category-grid">
+      <div class="cat-card ai" onclick="showList('ai')">
+        <div class="cat-icon">🤖</div>
+        <h2>AI 大模型公司</h2>
+        <p class="cat-desc">基于公开招聘数据（Boss直聘、脉脉、LinkedIn）的招聘情报分析，覆盖四家头部大模型公司。</p>
+        <div class="cat-tags">
+          <span class="cat-tag">DeepSeek</span>
+          <span class="cat-tag">MiniMax</span>
+          <span class="cat-tag">智谱华章</span>
+          <span class="cat-tag">月之暗面</span>
+        </div>
+        <span class="cat-go">查看报告 →</span>
+      </div>
+
+      <div class="cat-card ti" onclick="showList('ti')">
+        <div class="cat-icon">🏢</div>
+        <h2>Talent Intelligence 系统</h2>
+        <p class="cat-desc">经 Talent Intelligence 系统严谨认证的组织架构与人才洞察，数据经过多轮交叉验证。</p>
+        <div class="cat-tags">
+          <span class="cat-tag">腾讯</span>
+        </div>
+        <span class="cat-go">查看报告 →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ 3a. AI 报告列表 ═══════ -->
+<div id="aiListPage" style="display:none;">
 
 <nav class="nav">
-  <div class="logo"><span class="dot">M</span>人才情报报告集</div>
-  <div style="color: var(--muted); font-size: 12.5px;">国内四家大模型公司 · 2026-08</div>
+  <div class="nav-left">
+    <div class="logo"><span class="dot">M</span>AI 大模型公司</div>
+    <span class="back-btn" onclick="backToCategory()">← 返回分类</span>
+  </div>
+  <div class="nav-right">公开招聘数据 · 2026-08</div>
 </nav>
 
 <header class="hero">
   <div class="hero-inner">
-    <div class="pill">AI NATIVE 人才情报 · 报告集</div>
-    <h1>国内四家大模型公司<br><span class="teal">人才与组织情报报告</span></h1>
+    <div class="pill">AI NATIVE 人才情报</div>
+    <h1>国内四家大模型公司<br><span class="accent">人才与组织情报报告</span></h1>
     <div class="framework">
       <div class="fw-step"><span class="fw-num">01</span>组织阶段</div>
       <span class="fw-arrow">→</span>
@@ -260,7 +383,7 @@
 <main>
   <div class="sec-tag">Company reports</div>
   <h2>单公司专题洞察</h2>
-  <p class="sec-desc">四家公司均已按专题洞察模板发布；月之暗面 2026-08-16 月度追踪口径更新。</p>
+  <p class="sec-desc">四家公司均已按专题洞察模板发布。</p>
 
   <div class="grid">
     <div class="co-card" onclick="openReport('minimax')">
@@ -319,14 +442,61 @@
     <span class="go">查看报告 →</span>
   </div>
 
-  <p class="note">数据窗口 2026-08-01 ~ 08-06 时点快照，2026-08-16 月度追踪口径更新。各公司数据以单公司报告页为准。</p>
+  <p class="note">数据窗口 2026-08-01 ~ 08-06 时点快照。各公司数据以单公司报告页为准。</p>
 </main>
 
 <div class="footer">
-  人才情报报告集 · 2026-08-16 · 数据来源：Boss直聘、脉脉、LinkedIn、企业公开招聘信息及公开报道，多渠道交叉验证
+  AI 大模型公司人才情报 · 数据来源：Boss直聘、脉脉、LinkedIn、企业公开招聘信息及公开报道
 </div>
 
-</div><!-- /listPage -->
+</div>
+
+<!-- ═══════ 3b. TI 报告列表 ═══════ -->
+<div id="tiListPage" style="display:none;">
+
+<nav class="nav">
+  <div class="nav-left">
+    <div class="logo"><span class="dot" style="background:linear-gradient(135deg,#c9a227,#e0b83f)">T</span>Talent Intelligence</div>
+    <span class="back-btn" onclick="backToCategory()">← 返回分类</span>
+  </div>
+  <div class="nav-right">系统认证报告 · 2026-08</div>
+</nav>
+
+<header class="hero ti-hero">
+  <div class="hero-inner">
+    <div class="pill">TALENT INTELLIGENCE · 系统认证</div>
+    <h1>组织架构与人才洞察<br><span class="accent">深度验证报告</span></h1>
+    <p class="logic-line">经 Talent Intelligence 系统<em>严谨认证</em>的组织架构全映射，多源数据<em>交叉验证</em>。</p>
+    <p class="data-note">数据来源：内部 TI 系统多轮验证 · 组织架构全量映射</p>
+  </div>
+</header>
+
+<main>
+  <div class="sec-tag" style="color:#8a6d10;">Company Intelligence</div>
+  <h2>企业深度洞察</h2>
+  <p class="sec-desc">经系统严谨认证的组织架构与人才洞察报告。</p>
+
+  <div class="grid">
+    <div class="co-card" onclick="openReport('tencent')">
+      <div class="co-name">腾讯 <span class="co-status ti">TI 认证</span></div>
+      <div class="co-one">AI/大模型组织架构全映射：研发团队 + TA招聘 + HRBP + IEG + WXG 视角深度情报档案。</div>
+      <div class="tags">
+        <span class="tag ti-tag">组织架构全映射</span>
+        <span class="tag ti-tag">V2.6 · 2026-08-19</span>
+        <span class="tag ti-tag">多 BU 交叉验证</span>
+      </div>
+      <span class="go" style="color:#8a6d10;">查看报告 →</span>
+    </div>
+  </div>
+
+  <p class="note">更多企业报告将持续更新。</p>
+</main>
+
+<div class="footer">
+  Talent Intelligence 系统认证报告 · 数据经多轮交叉验证
+</div>
+
+</div>
 
 <!-- ═══════ iframe 查看器 ═══════ -->
 <div id="exitBar"><button onclick="exitReport()">退出报告</button></div>
@@ -343,9 +513,11 @@ const REPORTS = {
   deepseek_en: { enc: 'deepseek_en.enc' },
   zhipu_en:   { enc: 'zhipu_en.enc' },
   moonshot_en: { enc: 'moonshot_en.enc' },
+  tencent: { enc: 'tencent.enc' },
 };
 let password = null;
 const decryptedCache = {};
+let currentList = null;
 
 function showErr(msg) {
   const el = document.getElementById('error');
@@ -387,7 +559,7 @@ async function handleLogin(e) {
     decryptedCache['fusion'] = await decrypt('fusion.enc', pwd);
     password = pwd;
     document.getElementById('loginCard').style.display = 'none';
-    document.getElementById('listPage').style.display = 'block';
+    document.getElementById('categoryPage').style.display = 'flex';
   } catch (err) {
     showErr('密码错误，请重试');
     document.getElementById('password').value = '';
@@ -396,13 +568,36 @@ async function handleLogin(e) {
   btn.textContent = '进入';
 }
 
+function showList(type) {
+  currentList = type;
+  document.getElementById('categoryPage').style.display = 'none';
+  if (type === 'ai') {
+    document.getElementById('aiListPage').style.display = 'block';
+  } else {
+    document.getElementById('tiListPage').style.display = 'block';
+  }
+}
+
+function backToCategory() {
+  if (currentList === 'ai') {
+    document.getElementById('aiListPage').style.display = 'none';
+  } else {
+    document.getElementById('tiListPage').style.display = 'none';
+  }
+  document.getElementById('categoryPage').style.display = 'flex';
+}
+
 async function openReport(key) {
   const rep = REPORTS[key];
   if (!rep) return;
   if (!decryptedCache[key]) {
     decryptedCache[key] = await decrypt(rep.enc, password);
   }
-  document.getElementById('listPage').style.display = 'none';
+  if (currentList === 'ai') {
+    document.getElementById('aiListPage').style.display = 'none';
+  } else {
+    document.getElementById('tiListPage').style.display = 'none';
+  }
   const viewer = document.getElementById('viewer');
   viewer.style.display = 'block';
   viewer.srcdoc = decryptedCache[key];
@@ -414,7 +609,11 @@ function exitReport() {
   viewer.style.display = 'none';
   viewer.srcdoc = '';
   document.getElementById('exitBar').style.display = 'none';
-  document.getElementById('listPage').style.display = 'block';
+  if (currentList === 'ai') {
+    document.getElementById('aiListPage').style.display = 'block';
+  } else {
+    document.getElementById('tiListPage').style.display = 'block';
+  }
 }
 </script>
 </body>
