@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>腾讯 AI/大模型组织架构全映射 · 精简版</title>
+<style>
+:root{
+  --navy:#101d3a; --navy-2:#16264c; --navy-deep:#0a142b;
+  --gold:#c9a227; --gold-bright:#e0b83f; --gold-soft:#f0e2b6;
+  --ink:#1d2537; --muted:#5b6478; --faint:#8b93a7;
+  --paper:#f5f3ec; --card:#ffffff; --line:#e5e1d4;
+  --serif:'Noto Serif SC','Songti SC','STSong','SimSun',serif;
+  --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei','Helvetica Neue',Arial,sans-serif;
+  --shadow:0 1px 2px rgba(16,29,58,.06),0 8px 24px -12px rgba(16,29,58,.18);
+  --shadow-lift:0 2px 4px rgba(16,29,58,.08),0 18px 36px -14px rgba(16,29,58,.28);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:86px}
+body{
+  font-family:var(--sans);color:var(--ink);font-size:15px;line-height:1.75;
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(1100px 520px at 88% -120px, rgba(22,38,76,.07), transparent 62%),
+    radial-gradient(900px 460px at -8% 34%, rgba(201,162,39,.08), transparent 58%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(201,162,39,.35)}
+a{color:inherit}
+
+#progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:1000;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+  box-shadow:0 0 8px rgba(224,184,63,.55);transition:width .12s linear}
+
+.hero{position:relative;overflow:hidden;color:#eef1f8;
+  background:
+    radial-gradient(900px 420px at 82% -10%, rgba(201,162,39,.16), transparent 55%),
+    linear-gradient(160deg,#152548 0%, #101d3a 45%, #0a142b 100%);
+  border-bottom:3px solid var(--gold);
+}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(80% 80% at 50% 20%,#000 30%,transparent 100%);
+  -webkit-mask-image:radial-gradient(80% 80% at 50% 20%,#000 30%,transparent 100%);
+}
+.hero-watermark{position:absolute;right:-24px;top:-58px;font-family:var(--serif);font-weight:900;
+  font-size:clamp(150px,24vw,300px);line-height:1;letter-spacing:.06em;color:rgba(255,255,255,.04);
+  -webkit-text-stroke:1px rgba(224,184,63,.14);user-select:none;pointer-events:none;white-space:nowrap}
+.hero-inner{position:relative;max-width:1180px;margin:0 auto;padding:74px 28px 96px}
+.hero-kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.32em;
+  color:var(--gold-bright);text-transform:uppercase;font-weight:500;
+  border:1px solid rgba(224,184,63,.4);padding:6px 14px 6px 12px;border-radius:2px;background:rgba(10,20,43,.45)}
+.hero-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--gold-bright);
+  box-shadow:0 0 0 0 rgba(224,184,63,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(224,184,63,.55)}70%{box-shadow:0 0 0 9px rgba(224,184,63,0)}100%{box-shadow:0 0 0 0 rgba(224,184,63,0)}}
+.hero-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:28px;margin-top:30px;flex-wrap:wrap}
+h1{font-family:var(--serif);font-weight:900;line-height:1.12}
+.hero-company{display:block;font-size:clamp(52px,8vw,88px);letter-spacing:.04em;color:#f4f6fb}
+.hero-sub{display:block;font-size:clamp(22px,3.2vw,34px);font-weight:700;color:var(--gold-soft);
+  margin-top:10px;letter-spacing:.08em}
+.hero-sub::before{content:"";display:inline-block;width:44px;height:2px;background:var(--gold);
+  vertical-align:middle;margin-right:14px;transform:translateY(-3px)}
+.hero-stamp{flex:0 0 auto;transform:rotate(5deg);border:2px solid rgba(224,184,63,.75);
+  outline:1px solid rgba(224,184,63,.4);outline-offset:4px;border-radius:6px;
+  padding:14px 20px;text-align:center;font-family:var(--serif);color:var(--gold-bright);
+  font-size:34px;font-weight:900;letter-spacing:.1em;line-height:1.1;background:rgba(10,20,43,.5)}
+.hero-stamp small{display:block;font-size:11px;letter-spacing:.3em;font-weight:600;color:#cdd6ea;margin-top:6px;font-family:var(--sans)}
+.hero-lede{margin-top:26px;max-width:760px;color:#c3cde2;font-size:15.5px}
+.hero-lede b{color:#fff;font-weight:600}
+
+.stats-band{position:relative;z-index:5;max-width:1180px;margin:-52px auto 0;padding:0 28px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px 18px 16px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .25s ease}
+.stat-card::before{content:"";position:absolute;top:0;left:0;height:3px;width:38px;background:var(--gold)}
+.stat-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lift);border-color:rgba(201,162,39,.55)}
+.stat-num{font-family:var(--serif);font-weight:900;font-size:38px;color:var(--navy);line-height:1}
+.stat-label{margin-top:8px;font-size:13px;font-weight:700;color:var(--ink)}
+.stat-sub{margin-top:3px;font-size:11.5px;color:var(--muted);line-height:1.5}
+
+#topnav{position:sticky;top:0;z-index:900;background:rgba(10,20,43,.96);
+  border-bottom:1px solid rgba(201,162,39,.35);backdrop-filter:blur(6px)}
+.nav-inner{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;align-items:center;gap:22px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-mark{width:32px;height:32px;border-radius:6px;background:linear-gradient(150deg,var(--gold-bright),var(--gold));
+  color:var(--navy-deep);font-family:var(--serif);font-weight:900;font-size:18px;display:grid;place-items:center}
+.brand-text{color:#e8ecf6;font-size:13.5px;font-weight:600;letter-spacing:.06em}
+.brand-text em{font-style:normal;color:var(--gold-bright)}
+.nav-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{color:#aeb9d2;text-decoration:none;font-size:13.5px;font-weight:500;
+  padding:20px 13px;letter-spacing:.03em;transition:color .2s;white-space:nowrap}
+.nav-link:hover{color:#fff}
+.nav-link.active{color:var(--gold-bright)}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.sec{padding:66px 0 26px}
+.sec-head{margin-bottom:30px}
+.sec-kicker{font-size:11.5px;letter-spacing:.34em;color:var(--gold);font-weight:700;text-transform:uppercase}
+.sec-head h2{font-family:var(--serif);font-weight:900;font-size:clamp(26px,3.4vw,36px);color:var(--navy);
+  margin-top:8px;letter-spacing:.03em}
+.sec-rule{margin-top:14px;height:1px;width:220px;background:linear-gradient(90deg,var(--gold),rgba(201,162,39,0));position:relative}
+.sec-rule::before{content:"";position:absolute;left:0;top:-3.5px;width:8px;height:8px;background:var(--gold);transform:rotate(45deg)}
+
+.md{font-size:15px;color:var(--ink)}
+.md h3{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--navy);margin:34px 0 14px;
+  padding-left:14px;border-left:4px solid var(--gold);letter-spacing:.02em;line-height:1.4}
+.md h4{font-weight:700;font-size:16px;color:var(--navy-2);margin:24px 0 10px}
+.md p{margin:0 0 14px}
+.md strong{color:var(--navy);font-weight:700}
+.md ul,.md ol{margin:0 0 16px;padding-left:24px}
+.md li{margin-bottom:7px}
+.md li::marker{color:var(--gold);font-weight:700}
+.md hr{border:0;height:1px;margin:34px 0;background:linear-gradient(90deg,transparent,var(--line) 18%,var(--line) 82%,transparent)}
+.md pre{background:linear-gradient(165deg,#16264c,#0e1a38);color:#d9e2f4;border-radius:8px;
+  padding:26px 24px 22px;margin:0 0 20px;overflow-x:auto;position:relative;
+  border:1px solid rgba(201,162,39,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),var(--shadow);
+  font-size:13px;line-height:1.7}
+.md pre::before{content:"ORG CHART";position:absolute;top:0;right:0;font-family:var(--sans);
+  font-size:9.5px;letter-spacing:.28em;color:var(--navy-deep);background:linear-gradient(150deg,var(--gold-bright),var(--gold));
+  padding:4px 12px 3px;border-radius:0 8px 0 8px;font-weight:700}
+.md pre code{background:none;color:inherit;padding:0;font-size:inherit;
+  font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,'Noto Sans SC',monospace}
+.table-wrap{overflow-x:auto;margin:0 0 22px;border-radius:8px;border:1px solid var(--line);
+  box-shadow:var(--shadow);background:var(--card);-webkit-overflow-scrolling:touch}
+.md table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+.md th{background:var(--navy);color:#f0e9d6;font-weight:600;text-align:left;padding:11px 14px;
+  font-size:12.5px;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--gold)}
+.md td{padding:10px 14px;border-bottom:1px solid #eee9dc;vertical-align:top;color:#333c50}
+.md tr:last-child td{border-bottom:0}
+.md tbody tr:hover{background:rgba(201,162,39,.08)}
+.md td:first-child{font-weight:600;color:var(--navy)}
+.md blockquote{border-left:3px solid var(--gold);background:rgba(201,162,39,.09);padding:14px 20px;
+  border-radius:0 6px 6px 0;margin:0 0 18px;color:#4c4636;font-size:14px}
+
+footer{margin-top:70px;background:var(--navy-deep);color:#93a0bd;border-top:3px solid var(--gold)}
+.foot-inner{max-width:1180px;margin:0 auto;padding:38px 28px 46px;font-size:12.5px;line-height:2}
+.foot-brand{font-family:var(--serif);color:#e8ecf6;font-size:17px;font-weight:700;letter-spacing:.06em}
+.foot-brand em{font-style:normal;color:var(--gold-bright)}
+footer .fine{margin-top:10px;color:#6d7a99;font-size:11.5px}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+@media (max-width:1020px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:860px){
+  .nav-inner{gap:14px}
+  .brand-text{display:none}
+  .hero-inner{padding:56px 22px 88px}
+  .hero-watermark{font-size:150px;right:-40px}
+  .sec{padding:50px 0 18px}
+}
+@media (max-width:640px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-band{margin-top:-44px}
+  .stat-num{font-size:30px}
+  .hero-title-row{gap:18px}
+  .hero-stamp{font-size:26px;padding:10px 16px}
+  .wrap{padding:0 18px}
+  .nav-inner{padding:0 14px}
+  .md pre{font-size:11.5px;padding:22px 14px 16px}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="hero" id="top">
+  <div class="hero-watermark">混元</div>
+  <div class="hero-inner">
+    <div class="hero-kicker"><span class="dot"></span>Company Intel Dossier · 组织架构情报档案</div>
+    <div class="hero-title-row">
+      <h1>
+        <span class="hero-company">腾讯</span>
+        <span class="hero-sub">AI / 大模型组织架构全映射</span>
+      </h1>
+      <div class="hero-stamp">精简版<small>对外分享</small></div>
+    </div>
+    <p class="hero-lede">四层深度映射：<b>研发团队</b> → <b>TA 招聘</b> → <b>HRBP 体系</b> → <b>IEG 互动娱乐</b> + <b>WXG 微信视角</b>。基于 12 篇公开报道 + 多位一手信息源交叉验证。</p>
+  </div>
+</header>
+
+<div class="stats-band">
+  <div class="stats-grid">
+    <div class="stat-card reveal"><div class="stat-num">4</div><div class="stat-label">次架构变革</div><div class="stat-sub">三年内从虚拟组织→AI Lab→TEG实体→姚顺雨时代</div></div>
+    <div class="stat-card reveal"><div class="stat-num">9</div><div class="stat-label">个已关联团队</div><div class="stat-sub">语言·多模态·Infra·Data·计算平台·广告·CSIG·IEG·WXG</div></div>
+    <div class="stat-card reveal"><div class="stat-num">700</div><div class="stat-label">CSIG 大数据+AI</div><div class="stat-sub">集团+云智，对标 Databricks</div></div>
+    <div class="stat-card reveal"><div class="stat-num">5</div><div class="stat-label">位核心人物离场</div><div class="stat-sub">AI Lab 主任/副主任/混元技术负责人等</div></div>
+  </div>
+</div>
+
+<nav id="topnav">
+  <div class="nav-inner">
+    <a class="brand" href="#top"><span class="brand-mark">腾</span><span class="brand-text">腾讯 · <em>组织情报</em></span></a>
+    <div class="nav-links">
+      <a href="#sec-summary" class="nav-link active">执行摘要</a>
+      <a href="#sec-rd" class="nav-link">研发团队</a>
+      <a href="#sec-ta" class="nav-link">TA招聘</a>
+      <a href="#sec-hrbp" class="nav-link">HRBP</a>
+      <a href="#sec-ieg" class="nav-link">IEG互动娱乐</a>
+      <a href="#sec-wxg" class="nav-link">WXG微信</a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="sec" id="sec-summary">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">01 · Executive Summary</div>
+      <h2>执行摘要</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="md reveal" id="c-summary"></div>
+  </section>
+
+  <section class="sec" id="sec-rd">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">02 · R&amp;D Organization</div>
+      <h2>研发团队架构</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="md reveal" id="c-rd"></div>
+  </section>
+
+  <section class="sec" id="sec-ta">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">03 · Talent Acquisition</div>
+      <h2>TA招聘团队架构</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="md reveal" id="c-ta"></div>
+  </section>
+
+  <section class="sec" id="sec-hrbp">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">04 · HRBP System</div>
+      <h2>HRBP团队架构</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="md reveal" id="c-hrbp"></div>
+  </section>
+
+  <section class="sec" id="sec-ieg">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">05 · IEG Deep Dive</div>
+      <h2>IEG互动娱乐事业群 · AI/组织视角</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="md reveal" id="c-ieg"></div>
+  </section>
+
+  <section class="sec" id="sec-wxg">
+    <div class="sec-head reveal">
+      <div class="sec-kicker">06 · WXG Deep Dive</div>
+      <h2>WXG微信事业群 · HR/TA视角</h2>
+      <div class="sec-rule"></div>
+    </div>
+    <div class="md reveal" id="c-wxg"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand">腾讯 · <em>AI/大模型组织架构全映射</em></div>
+    <div>数据来源：外部调研（量子位 · 雷峰网 · 36氪 · 财联社等）+ 多位候选人/在职者一手信息交叉验证</div>
+    <div class="fine">精简版 · 仅供人才情报研究参考 · 详细版含完整人选卡片库与交叉验证记录</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js" integrity="sha512-FbFEYqQkDHRM5hrFnM5KjEaMSEJG/FHMOvXEDMqFOoGhiM5JQkPDzG+2bQYqPJdGnFOGfsXl+eOSh+AGlBKWg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(function(){
+  "use strict";
+
+  function renderMd(srcId, targetId){
+    var srcEl = document.getElementById(srcId);
+    var el = document.getElementById(targetId);
+    if (!srcEl || !el) return;
+    var src = srcEl.textContent.replace(/^\s*\n/, "");
+    if (typeof window.marked !== "undefined") {
+      el.innerHTML = marked.parse(src);
+    } else {
+      var pre = document.createElement("pre");
+      pre.style.whiteSpace = "pre-wrap";
+      pre.textContent = src;
+      el.appendChild(pre);
+    }
+    $all("table", el).forEach(function(t){
+      if (t.parentElement && t.parentElement.classList.contains("table-wrap")) return;
+      var w = document.createElement("div");
+      w.className = "table-wrap";
+      t.parentNode.insertBefore(w, t);
+      w.appendChild(t);
+    });
+  }
+  function $(s){ return document.querySelector(s); }
+  function $all(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
+
+  renderMd("md-summary-src", "c-summary");
+  renderMd("md-rd-src", "c-rd");
+  renderMd("md-ta-src", "c-ta");
+  renderMd("md-hrbp-src", "c-hrbp");
+  renderMd("md-ieg-src", "c-ieg");
+  renderMd("md-wxg-src", "c-wxg");
+
+  /* scroll reveal */
+  var revealEls = $all(".reveal");
+  revealEls.forEach(function(el, i){ el.style.transitionDelay = (i % 5) * 55 + "ms"; });
+  function inView(el){ var r = el.getBoundingClientRect(); var vh = window.innerHeight; return r.top < vh * 0.92 && r.bottom > 0; }
+  function revealNow(el){ el.classList.add("in"); }
+  function revealInView(){ revealEls.forEach(function(el){ if (!el.classList.contains("in") && inView(el)) revealNow(el); }); }
+  revealInView();
+  if ("IntersectionObserver" in window) {
+    var ro = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if (en.isIntersecting) { revealNow(en.target); ro.unobserve(en.target); } });
+    }, { threshold: 0.05, rootMargin: "0px 0px -28px 0px" });
+    revealEls.forEach(function(el){ if (!el.classList.contains("in")) ro.observe(el); });
+  }
+  setTimeout(function(){ revealEls.forEach(revealNow); }, 2600);
+
+  /* nav spy */
+  var navLinks = $all(".nav-link");
+  if ("IntersectionObserver" in window && navLinks.length) {
+    var spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (!en.isIntersecting) return;
+        navLinks.forEach(function(a){
+          var on = a.getAttribute("href") === "#" + en.target.id;
+          if (on) a.classList.toggle("active", true);
+        });
+      });
+    }, { rootMargin: "-36% 0px -56% 0px", threshold: 0 });
+    navLinks.forEach(function(a){
+      var s = document.getElementById(a.getAttribute("href").slice(1));
+      if (s) spy.observe(s);
+    });
+  }
+
+  /* progress bar */
+  var bar = document.getElementById("progress");
+  window.addEventListener("scroll", function(){
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+  }, { passive: true });
+})();
+</script>
+
+<!-- ═══════ MARKDOWN SOURCES ═══════ -->
+<script type="text/markdown" id="md-summary-src">
+腾讯混元团队在三年内经历从虚拟组织→AI Lab主导→TEG实体部门→姚顺雨时代的**四次重大架构变革**。2025年底至2026年初完成最彻底的一次重组：AI Lab于2026年3月正式撤销，人员分流至LLM部+产学研中心，形成姚顺雨统领的语言模型+Infra与薄列峰的多模态模型两大平行体系。
+
+**2026年7月再度变阵**：大语言模型部与多模态模型部合并为"**基础模型部**"，姚顺雨统一管理，薄列峰（Linus）直接向姚顺雨汇报——"模态分拆双轨制"终结，姚顺雨体系进一步集权，直接向总裁刘炽平汇报。
+
+**核心组织特征**：腾讯曾是唯一按"模态"拆分大模型研发的大厂（语言模型部+多模态模型部平行），2026年7月合并后转向"全模态统一"，官方口径为提升研发协同效率、探索全模态智能上限。对比：百度在R&D内部硬拆BMU/AMU（基模vs应用模）；字节Seed统一做模型研发按模态分工但不拆独立部门；阿里ATH事业部制一体化——腾讯此次合并后与字节模式趋同。
+
+**CSIG战略方向**：CSIG大数据+AI团队已扩至**700人**（集团+云智），2025年战略从follow阿里云转向**对标Databricks弯道超车**，产品矩阵覆盖EMR/ES/流式计算/TCHouse/TCInsight/DataBar(Data Agent)；**王慧欣VP直接整合AI to B（2026）**，WorkBuddy/CodeBuddy已跑出；元宝2025年归入CSIG，构建**数据飞轮**（数据科学/数仓/增长运营DAU）。
+
+**挖角窗口判断**：语音+多模态方向人才流失最严重（多位核心人物已离开），是活跃窗口期。AI Lab撤销后HR人才也开始外溢。腾讯正以双倍薪资从字节/OpenAI激进挖人，"职级薪酬上不封顶"。
+</script>
+
+<script type="text/markdown" id="md-rd-src">
+### 当前架构（2026年7月变阵后）
+
+```
+腾讯总裁 刘炽平
+│
+├── 首席AI科学家 姚顺雨 ──(实线汇报刘炽平)
+│   │  95后 / 前OpenAI研究员 / 微软WizardLM核心骨干
+│   │
+│   ├── 基础模型部 ── 姚顺雨(统一管理)
+│   │   │  2026.7由大语言模型部+多模态模型部合并成立
+│   │   │  官方口径：提升模型研发和协同效率，探索全模态模型的智能上限
+│   │   │
+│   │   ├── 语言模型线（原大语言模型部）
+│   │   │   ├── 预训练组 / 后训练组 / 模型评估组
+│   │   │   ├── Frontier(前沿探索)组
+│   │   │   └── 副总经理：王迪 ──(TEG老将/AI平台部出身)
+│   │   │
+│   │   └── 多模态线（原多模态模型部）── 薄列峰(Linus)
+│   │       ├── 文生图 / 文生视频（钟钊，华为天才少年出身）/ 文生3D（全球领先）
+│   │       ├── 数字人 / 语音
+│   │       └── VLM方向 ── 田永龙(Yonglong Tian，前OpenAI研究员)
+│   │
+│   ├── AI Infra部 ── 姚顺雨(兼)
+│   │   ├── 分布式训练
+│   │   ├── 高性能推理服务
+│   │   └── Baseline Infra
+│   │
+│   └── [TEG总裁 卢山 ──(Infra+基础模型部虚线汇报)]
+│
+│   └── 大BP ── 原青云计划负责人/校招团队负责人调任
+│       └── 选择逻辑：懂AI人才+懂年轻人，非传统BP出身
+│
+├── AI Data部 ── 刘煜宏 ──(向副总裁蒋杰汇报)
+│   ├── 大模型数据体系
+│   └── 评测标准建设
+│
+├── 数据计算平台部 ── 陈鹏 ──(向副总裁蒋杰汇报)
+│   └── 大数据+机器学习融合平台
+│
+├── CSIG（云与智慧产业事业群）
+│   ├── 大数据+AI团队（700人，集团+云智）
+│   │   ├── 2020接手50-60人 → 2024初500-600人 → 2025年700人
+│   │   ├── 战略：从follow阿里云 → 对标Databricks弯道超车(2025)
+│   │   ├── 产品矩阵：EMR/ES/流式计算/TCHouse/TCInsight/DataBar(Data Agent)
+│   │   └── 青云博士Data+AI今年double
+│   ├── AI to B整合：王慧欣VP直接整合(2026)，WorkBuddy/CodeBuddy跑出
+│   ├── 杭州新建计算引擎中心
+│   └── 元宝（2025归入CSIG）
+│       └── 数据飞轮：数据科学/数仓/增长运营(DAU)
+│
+├── IEG（互动娱乐事业群）
+│   ├── IEG AI研究探索中心（成立4年+，15人全95后斯坦福博士）
+│   │   └── 方向：AI在游戏领域应用探索
+│   ├── 2025初架构调整：独立发行部价值受质疑，各工作室自建海外发行
+│   └── 天才少年项目（腾讯顶级技术人才招聘与培养项目）
+│
+└── [已撤销] AI Lab ── 2026年3月正式撤销
+    ├── 原主任：张正友(回归Robotics X)
+    ├── 原副主任：俞栋(已离职)
+    └── 人员分流至LLM部+产学研中心
+```
+
+**汇报关系要点：**
+- 姚顺雨首席科学家 → 实线汇报刘炽平（总裁级）
+- 基础模型部 + AI Infra部 → 虚线汇报TEG总裁卢山
+- 薄列峰（多模态线）→ **直接向姚顺雨汇报**（2026.7合并后明确）
+- 田永龙（VLM方向）→ 汇报姚顺雨
+- 王迪（基础模型部副总经理）→ 汇报姚顺雨
+- AI Data部 + 数据计算平台部 → 汇报蒋杰（公司副总裁）
+
+### CSIG大数据+AI战略方向
+
+| 维度 | 内容 |
+|------|------|
+| 团队规模 | 700人（集团+云智）：2020接手50-60人 → 2024初500-600人 → 2025年700人 |
+| 战略转向 | 从follow阿里云 → 对标Databricks弯道超车（2025） |
+| 产品矩阵 | EMR / ES / 流式计算 / TCHouse / TCInsight / DataBar（Data Agent） |
+| AI to B | 王慧欣VP直接整合（2026），WorkBuddy / CodeBuddy跑出 |
+| 元宝 | 2025归入CSIG，数据飞轮：数据科学 / 数仓 / 增长运营（DAU） |
+| 竞争格局 | 大数据+AI赛道面临火山引擎（字节）与阿里云竞争 |
+
+### 架构演变时间线
+
+| 时间 | 事件 | 影响 |
+|------|------|------|
+| 2017 | 张正友创建AI Lab | 腾讯AI基础研究起点 |
+| 2019 | 张正友接任AI Lab主任 | 学术派主导期 |
+| 2022末-2023中 | 混元立项，虚拟项目组跨部门抽调 | 算力不足几千张卡 |
+| 2023中-2024中 | AI Lab为技术核心，内部评比落后 | 后训练团队出局 |
+| 2024.7 | 张正友退回Robotics X，蒋杰接手AI Lab重组为AGI中心 | 学术派→工程派转型 |
+| 2024中-2025秋 | TEG实体化，R1-R4合伙人制 | 人才大量流失期 |
+| 2025.12 | 姚顺雨入职任首席AI科学家 | "AI原生人才主导"新纪元 |
+| 2026.3 | AI Lab正式撤销，人员分流至LLM部+产学研中心 | 学术派全面出局 |
+| 2026Q1 | 新设AI Infra部/AI Data部/数据计算平台部 | 双轨制(语言+多模态)定型 |
+| 2026.7.23 | 大语言模型部+多模态模型部合并为**基础模型部** | "模态分拆双轨制"终结，姚顺雨体系集权 |
+
+### 已离职/出局核心人物
+
+| 原职位 | 去向 | 离职原因 |
+|--------|------|---------|
+| AI Lab主任/首席科学家 | 回归Robotics X实验室 | 计算机视觉背景，大模型方向非核心 |
+| AI Lab副主任 | 已离职 | 语音项目受阻，组织变革 |
+| 混元技术负责人/杰出科学家 | 创业Video Rebirth(视频生成) | 晋升后急流勇退 |
+| 推理架构核心 | 离职创业(独立写完VLLM推理架构) | 体感不好 |
+| 语音方向负责人 | 入职京东研究院(仅3个月即走) | 语音项目受阻、人事变动 |
+
+### 团队规模与人才策略
+
+**规模推断：** 混元核心团队未公开具体人数，从组织形态推断语言模型部+Infra+多模态+Data+计算平台合计应在数百人量级，分布在深圳、北京、上海、西雅图四地。早期语音团队仅约20人，某次换血后"原班人马流失八成"。
+
+**人才策略（2025-2026）：**
+- 激进挖角：从字节跳动、OpenAI等竞争对手以双倍薪资挖人
+- 青云计划：面向2025年9月后毕业的本硕博士，"职级薪酬上不封顶"
+- 博士后站点：深圳博士后最高补贴136万元
+- 招聘方向：核心算法、数据工程、AI Infra（分布式训练/高性能推理）、Agent智能体
+</script>
+
+<script type="text/markdown" id="md-ta-src">
+### 集团招聘体系
+
+```
+首席人才官 奚丹 ──(公司级人力资源负责人)
+│
+├── 全球招聘负责人 罗海波 ──(统筹校招/社招/高端猎聘)
+│
+├── 校招平台团队 ── Leader: Leo
+│   ├── 学生猎聘组
+│   ├── 高校渠道组
+│   ├── 平台效率组
+│   ├── 雇主品牌团队
+│   └── AI顶会方向：独立搭建学术人才数据库
+│       └── 40万作者/130万论文/top100会议/近3年
+│       └── 技术栈：ETL(多源API)+向量数据库语义匹配+human-in-the-loop外发(35%回复率)
+│       └── 规模：300 GitHub commits/2年，mapping 1000+公司研究团队(93%准确率)
+│
+├── 技术产品高招团队 ──(专注大模型/AI Infra高端猎聘)
+│   ├── Head of Technology Executive Search
+│   └── 高招团队规模：20-30人
+│
+├── 海外招聘
+│   ├── 加拿大 / 英国 / 新加坡
+│   └── 2021海外大扩张 → 2022寒冬收缩 → 现逐步恢复
+│
+└── CSIG招聘
+    ├── 资深招聘经理兼HRBP
+    ├── 大数据+AI团队(700人)招聘owner
+    └── 元宝招聘 + 数据飞轮团队
+```
+
+### CDG招聘线结构
+
+> CDG招聘线与BP平行（招聘不在BP下；三支柱严格分设）
+
+```
+总裁 刘炽平 直管CDG
+│
+└── CDG BG招聘负责人
+    ├── 腾讯广告招聘 ── 唯一带团队Lead(6人)
+    │   └── 腾讯广告=CDG第一大业务（贡献营收~22%）
+    ├── 金融科技招聘
+    ├── 腾讯投资/SSV/集团市场公关招聘
+    └── HR整体缩编状态：不外招、人员减少
+```
+
+**腾讯广告业务侧锚点**：
+- CDG第一大业务、商业化变现核心，贡献腾讯营收~22%
+- 业务负责人 **林璟骅(Davis)**，腾讯SVP
+- 技术负责人 **宙斯**（双线汇报：TEG侧→卢山，CDG侧→林璟骅）
+- 对腾讯而言多模态核心应用场景=游戏+商业化（广告）
+
+**招聘数据与AI人才竞争**：
+- 社招~200/年；校招200-400/年；实习400+（H1）
+- 60%需求=研发端（推荐算法/生成推荐/多模态/Agent/Infra）
+- 2026H1 AI方向已招70-80人（约1/3为高职级）
+- AI人才PK对手排序：字节Seed > 阿里妈妈 > startup
+- Infra最难（"面得到谈不进"）；多模态相对好招
+- 混元虹吸头部校招生（薪酬体系拉通+特殊政策+资源倾斜）
+
+### 腾讯国际化程度
+
+- 总员工11万，海外仅2-3千人
+- 除游戏(LightSpeed海外studio高度本地化)外，国际化程度低于阿里
+- 多数海外团队汇报回总部，海外Senior Director/GM级别人很少
+- 内部流动机制：Washray program
+- 腾讯6个BG
+
+### 招聘渠道与策略
+
+| 渠道 | 策略 | 目标人群 |
+|------|------|---------|
+| 青云计划 | 校招AI专项，直通绿色通道 | 2025.9后毕业本硕博 |
+| 技术产品高招团队 | 高端猎聘，主动触达 | 大模型/AI Infra资深专家 |
+| 双倍薪资挖角 | 从字节/OpenAI等竞对抢人 | 在职算法/Infra人才 |
+| 产学研联合 | 清华博士生实践基地、CVPR等顶会 | 顶尖学术人才 |
+| 博士后站点 | 深圳博士后最高补贴136万 | 博士/博士后 |
+
+**关键招聘特征：**
+- "职级薪酬上不封顶"：对顶尖AI人才给予极高弹性
+- 技术类岗位占比超60%
+- 四地分布：深圳（总部）、北京、上海、西雅图
+- AI顶会Mapping系统化：独立搭建5-7个API+ML模型覆盖100+顶会
+</script>
+
+<script type="text/markdown" id="md-hrbp-src">
+### HR三支柱体系
+
+```
+腾讯人力资源体系
+│
+├── COE (Center of Expertise) ── 专家中心
+│   ├── 薪酬福利设计
+│   ├── 人才发展/OD
+│   ├── 组织效能
+│   └── 招聘策略/雇主品牌
+│
+├── HRBP (Business Partner) ── 业务伙伴
+│   ├── TEG HRBP ──(技术工程事业群)
+│   │   ├── 混元/大模型方向 HRBP
+│   │   └── 云架构平台部 HRBP
+│   ├── CSIG HRBP
+│   ├── IEG HRBP ──(互动娱乐)
+│   ├── WXG HRBP ──(微信)
+│   └── CDG HRBP ──(企业发展)
+│
+└── SSC/SDC ── 共享服务中心
+```
+
+### AI Lab撤销对HR的影响
+
+AI Lab撤销后，HR人才出现明显挤出效应：
+- AI Lab HRBP → 被分流至TEG云架构平台部（边缘化位移）
+- 在AI Lab期间"既是BP也是项目经理"，深度补位科学家管理短板
+- **典型模式：技术一号位出局 → HR一号位连带位移 → 业务收缩 → BP被调至非核心部门**
+</script>
+
+<script type="text/markdown" id="md-ieg-src">
+### IEG 2025初架构调整
+
+- **独立发行部价值受质疑**：各工作室自建海外发行能力，PUBG被分出
+- IEG Global HRBP团队覆盖：海外游戏发行Marketing/品牌BP + 全球培训文化
+- 覆盖规模：1000+腾讯员工 + 7700二方伙伴
+
+### IEG AI研究探索中心
+
+- 成立4年+（2022起），从技术研究中心独立出来
+- 团队15人，全95后，核心为斯坦福博士
+- 方向：AI在游戏领域应用探索，快速迭代
+- **意义：IEG自建AI能力而非依赖混元，说明游戏AI应用落地走业务侧自建路线**
+
+### 天才少年项目
+
+- 定位：腾讯顶级技术人才招聘与培养项目
+- 与青云计划互补：天才少年偏技术深度（顶会/论文/竞赛），青云偏校招广度
+
+### 各studio对AI态度演变
+
+**拒绝 → 质疑 → 尝试**
+
+### IEG Global HRBP团队
+
+- 覆盖：海外游戏发行Marketing/品牌BP + 全球培训文化
+- 海外OCHR绩效体系调整：频率从统一→区域差异化，反映海外HR体系独立探索
+- BP Leader同时兼OHR培训Leader + IEG Global HRD
+</script>
+
+<script type="text/markdown" id="md-wxg-src">
+### WXG招聘文化
+
+- **排斥外部高招**：极少外招干部，以内推+活水为主
+- **内推+活水占80%+**：活水（内部流动）~50%，内推20-30%
+- **到岗率KPI 93%**：不以交付数量衡量，以年底headcount到岗率牵引
+- **面试流程极谨慎**：微信有面委会组织，人才质量导向极致
+
+### WXG规模与招聘数据
+
+| 时间 | 事件 | 数据 |
+|------|------|------|
+| 2019 | 企微起步 | 企微~300人，内推比例最低(20-30%) |
+| 2020 | 快速扩张 | 年招500-600人；推动多地办公+灵活用工+子公司建立 |
+| 2021 | 扩张尾声 | 猎头渠道对WXG不开放 |
+| 2022 | 集团招聘冻结+降本增效 | 主导WXG降本增效+人力模型落地 |
+| 2023 | 离职补缺 | 控制人效 |
+
+- 企微巅峰规模：~700人
+- 高招对标P9+
+
+### WXG Mapping方法论
+
+mapping = 商业竞争情报维度：
+1. 产品形态分析（各阶段产品能力构建）
+2. 战略策略拆解（竞对OKR公开→分析战略洞察→内部反哺）
+3. 招聘态势（竞对在哪里引入人）
+4. 组织架构图
+5. 关键人背景拆解（内部成长vs外部引入）
+
+### 2025年BP自强计划
+
+- 腾讯内部BP自强计划，2025年目标=AI能力提升
+- 给BP团队"非常紧迫的感觉，要追上工具/生产效率提升"
+</script>
+
+</body>
+</html>
