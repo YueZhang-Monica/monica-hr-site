@@ -620,16 +620,11 @@
     <h3>🤖 AI 问答助手</h3>
     <button class="chat-close" onclick="toggleChat()">✕</button>
   </div>
-  <div class="chat-api-bar">
-    <label>API Key:</label>
-    <input id="apiKeyInput" type="password" placeholder="sk-..." />
-    <div class="api-status no" id="apiStatus"></div>
-  </div>
   <div class="chat-messages" id="chatMessages">
     <div class="chat-welcome" id="chatWelcome">
       <div class="welcome-icon">📊</div>
       <p><b>基于当前报告内容</b>为你解答</p>
-      <p style="font-size:12px;margin-top:4px;">请先输入通义千问 API Key</p>
+      <p style="font-size:12px;margin-top:4px;">直接输入问题即可</p>
       <div class="chat-quick-q" id="quickQuestions"></div>
     </div>
   </div>
@@ -770,32 +765,8 @@ let reportText = '';
 let chatHistory = [];
 let isStreaming = false;
 
-// API Key 管理
-const API_KEY_STORAGE = 'qwen_api_key';
-function loadApiKey() {
-  const saved = localStorage.getItem(API_KEY_STORAGE);
-  if (saved) {
-    document.getElementById('apiKeyInput').value = saved;
-    updateApiStatus(true);
-  }
-}
-function saveApiKey() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (key) {
-    localStorage.setItem(API_KEY_STORAGE, key);
-    updateApiStatus(true);
-  } else {
-    localStorage.removeItem(API_KEY_STORAGE);
-    updateApiStatus(false);
-  }
-}
-function updateApiStatus(ok) {
-  const el = document.getElementById('apiStatus');
-  el.className = 'api-status ' + (ok ? 'ok' : 'no');
-}
-document.getElementById('apiKeyInput').addEventListener('input', function() {
-  saveApiKey();
-});
+// 内置 API Key（通义千问 qwen-plus）
+const QWEN_API_KEY = 'sk-ws-H.EPYIHER.DEEZ.MEYCIQDetJv0qunLkejVGxq2jVesuGhYtGAqwQsXazgQ_sOtNwIhAPwNu3cXJEBBieaW6IF41c7jKhlR1gOLWldYlOqXU0my';
 
 // 从解密后的 HTML 提取文本
 function extractReportText(html) {
@@ -848,11 +819,7 @@ async function sendChat() {
   const question = input.value.trim();
   if (!question || isStreaming) return;
 
-  const apiKey = document.getElementById('apiKeyInput').value.trim();
-  if (!apiKey) {
-    addChatMsg('ai', '请先在上方输入通义千问 API Key（sk- 开头）');
-    return;
-  }
+  const apiKey = QWEN_API_KEY;
   if (!reportText) {
     addChatMsg('ai', '报告内容尚未加载，请稍后再试。');
     return;
@@ -884,7 +851,7 @@ async function sendChat() {
     const messages = [
       {
         role: 'system',
-        content: '你是一个专业的人才情报分析助手。请基于以下报告内容回答用户的问题。回答要简洁、准确、有条理。如果报告中没有相关信息，请如实说明。使用中文回答。\n\n--- 报告内容 ---\n' + truncatedText
+        content: '你是一个专业的人才情报分析助手。请基于以下报告内容回答用户的问题。\n\n【回答格式要求】\n1. 必须分段：每个要点单独一段，段落之间空一行\n2. 使用编号列表（1. 2. 3.）或项目符号（•）来组织多个要点\n3. 关键信息用 **加粗** 标注\n4. 回答开头用一句话概括核心结论\n5. 保持简洁，不要啰嗦，控制在300字以内\n6. 如果报告中没有相关信息，请如实说明\n7. 使用中文回答\n\n--- 报告内容 ---\n' + truncatedText
       },
       { role: 'user', content: question }
     ];
@@ -934,7 +901,7 @@ async function sendChat() {
           const delta = json.choices?.[0]?.delta?.content || '';
           if (delta) {
             fullText += delta;
-            aiBubble.textContent = fullText;
+            aiBubble.innerHTML = renderMarkdown(fullText);
             scrollToBottom();
           }
         } catch (e) {
@@ -944,7 +911,9 @@ async function sendChat() {
     }
 
     if (!fullText) {
-      aiBubble.textContent = '（未收到有效回复，请检查 API Key 是否正确）';
+      aiBubble.textContent = '（未收到有效回复，请稍后重试）';
+    } else {
+      aiBubble.innerHTML = renderMarkdown(fullText);
     }
 
     chatHistory.push({ role: 'assistant', content: fullText });
@@ -969,13 +938,45 @@ function addChatMsg(role, text) {
 
   const bubble = document.createElement('div');
   bubble.className = 'chat-bubble';
-  bubble.textContent = text;
+  bubble.innerHTML = renderMarkdown(text);
 
   div.appendChild(avatar);
   div.appendChild(bubble);
   container.appendChild(div);
   scrollToBottom();
   return div;
+}
+
+// 简易 Markdown 渲染
+function renderMarkdown(text) {
+  if (!text) return '';
+  let html = text
+    // 代码块
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+    // 行内代码
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    // 加粗
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // 斜体
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // 标题
+    .replace(/^### (.+)$/gm, '<h4>$1</h4>')
+    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+    // 无序列表
+    .replace(/^[•\-\*] (.+)$/gm, '<li>$1</li>')
+    // 有序列表
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    // 换行
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  // 包裹段落
+  if (!html.startsWith('<')) html = '<p>' + html + '</p>';
+  // 列表包裹
+  html = html.replace(/(<li>.*<\/li>\n?)+/g, function(match) {
+    return '<ul>' + match.replace(/\n/g, '') + '</ul>';
+  });
+  return html;
 }
 
 function scrollToBottom() {
@@ -996,8 +997,8 @@ chatInput.addEventListener('keydown', function(e) {
   }
 });
 
-// 页面加载时恢复 API Key
-loadApiKey();
+// 页面加载
+loadQuickQuestions();
 </script>
 </body>
 </html>
