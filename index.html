@@ -617,14 +617,14 @@
 <button id="chatToggle" onclick="toggleChat()" title="AI 问答">💬</button>
 <div id="chatPanel">
   <div class="chat-header">
-    <h3>🤖 AI 问答助手</h3>
+    <h3>🤖 TI 情报简报</h3>
     <button class="chat-close" onclick="toggleChat()">✕</button>
   </div>
   <div class="chat-messages" id="chatMessages">
     <div class="chat-welcome" id="chatWelcome">
       <div class="welcome-icon">📊</div>
-      <p><b>基于当前报告内容</b>为你解答</p>
-      <p style="font-size:12px;margin-top:4px;">直接输入问题即可</p>
+      <p><b>TI 情报简报助手</b></p>
+      <p style="font-size:12px;margin-top:4px;">问公司情况或人选名字，快速掌握信息与下次沟通要点</p>
       <div class="chat-quick-q" id="quickQuestions"></div>
     </div>
   </div>
@@ -866,7 +866,7 @@ async function sendChat() {
     const messages = [
       {
         role: 'system',
-        content: '你是一个专业的人才情报分析助手。以下内容包含深度报告正文和 TI 系统源数据库（公司档案/团队记录/人物记录/深度洞察），请基于这些内容回答用户的问题。\n\n【回答格式要求】\n1. 必须分段：每个要点单独一段，段落之间空一行\n2. 使用编号列表（1. 2. 3.）或项目符号（•）来组织多个要点\n3. 关键信息用 **加粗** 标注\n4. 回答开头用一句话概括核心结论\n5. 保持简洁，不要啰嗦，控制在300字以内\n6. 如果知识库中没有相关信息，请如实说明\n7. 使用中文回答\n\n--- 知识库内容 ---\n' + truncatedText
+        content: '你是 Talent Intelligence 系统的 AI 简报助手，用户是 HRBP Leader 和招聘 Leader（高管视角，时间宝贵）。以下内容包含深度报告和 TI 系统源数据库（公司档案/团队记录/人物记录/深度洞察），请严格基于这些内容回答。\n\n【回答原则】帮用户在 30 秒内掌握：对方什么情况、我们已有什么信息、下一步该聊什么。\n\n【回答结构】\n■ 如果问的是【人选/人物】，按三段输出：\n1. 📌 一句话定位：是谁、哪家公司/团队/职位、当前状态（在职/已离职/已调岗）\n2. 📋 已掌握要点：3-5条核心事实（背景履历、提供过的关键信息、信息可信度）\n3. 🎯 下次沟通建议：2-3个具体可问的问题，优先覆盖知识库中标注的"待验证事项""信息冲突"和高价值缺口\n\n■ 如果问的是【公司/团队】，按三段输出：\n1. 📌 一句话概况：公司定位与当前阶段\n2. 📋 关键情报：3-5条核心事实（组织变动、人才动向、招聘策略）\n3. 🎯 信息缺口：还缺什么、建议通过什么渠道/找谁补齐\n\n■ 其他问题：先一句话结论，再列要点。\n\n【格式要求】\n- 用短语短句，不要长句，每条要点尽量不超过30字\n- 关键信息**加粗**\n- 全文控制在300字以内，宁短勿长\n- "下次沟通建议"必须给出具体可问出口的问题，不要空泛方向\n- 知识库中没有的信息如实说明"暂无"，并指出可从哪个渠道补齐\n- 使用中文回答\n\n--- 知识库内容 ---\n' + truncatedText
       },
       { role: 'user', content: question }
     ];
